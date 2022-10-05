@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Art Board</title>
+        <script src="https://kit.fontawesome.com/524f54d6b8.js" crossorigin="anonymous"></script>
+        <style>
+
+            *{
+                box-sizing: border-box;
+            }
+
+            div.artBoard{
+                width: 70%;
+                margin: auto;
+                display: flex;
+                border: 1px solid red;
+                padding: 10px;
+                justify-content: space-between;
+            }
+
+            div.changeColor{
+                width: 20%;
+                border: 3px solid red;
+                text-align: center;
+                margin-right: 10px;
+                background-color: #eee;                
+            }
+
+            div.changeColor p{
+                font-size: 20px;
+                font-family: cursive;
+                color: red;
+            }
+
+            div.changeColor button{
+                background-color: aqua;
+                font-size: 20px;
+                color: darkblue;
+                padding: 10px;
+                width: 80%;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                margin-bottom: 10px;
+
+            }
+
+            div.container{
+                width: 80%;
+            }
+
+            div.controls{
+                width: 100%;
+                text-align: center;
+                border: 2px solid black;
+                margin-bottom: 5px;
+                background-color: lightcyan;
+            }
+
+            div.controls button{
+                padding: 10px;
+                background-color: aqua;
+                color: darkorange;
+                border: none;
+                font-size: 40px;
+                width: 15%;
+                margin: 5px;
+                cursor: pointer;
+            }
+
+            div.controls button:hover,div.controls button.active,div.changeColor button:hover{
+                background-color: darkcyan;
+            }
+
+            #mysvg{
+                width: 100%;
+                height: 500px;
+                border: 3px solid green;
+                position: relative;
+                z-index: 10;
+                
+            }
+
+            .point{
+                cursor: pointer;
+                
+                
+            }
+            .point:hover{
+                stroke-width: 15 !important;
+                stroke: red !important;
+            }
+
+            .deleted{
+                
+                stroke-width: 15 !important;
+                stroke: red !important;
+            }
+
+            .deleted:hover{
+                cursor: pointer;
+            }
+
+            .move{
+                stroke: green !important;
+                stroke-width: 15 !important;
+            }
+        </style>
+    </head>
+    <body>
+        
+        <div class="artBoard">
+            <div class="changeColor">
+                <p>Fill Style</p>
+                <input id="fill" type="color" hidden value="black">
+                <button onclick="changeFill();">Change</button>
+                <p>Stroke Style</p>
+                <input id="stroke" type="color" hidden value="black">
+                <button onclick="ChangeStroke();" style="margin-bottom: 70px;">Change</button>
+                <button onclick="edit(this);">Clear</button>
+                <button onclick="clearAll(this)">CLearAll</button>
+                <button onclick="move(this)" class="">Move</button>
+            </div>
+            <div class="container">
+                <div class="controls">
+                    <button onclick="draw(1,this);" class=""><i class='fas fa-pencil-alt'></i></button>
+                    <button onclick="draw(2,this);" class="active"><i class='fas fa-pen'></i></button>
+                    <button onclick="draw(3,this);" class=""><i class='	fas fa-square'></i></button>
+                    <button onclick="draw(4,this);" class=""><i class='fas fa-circle'></i></button>
+                    <button onclick="erase(this);" class=""><i class='fas fa-eraser'></i></button>
+                </div>
+                
+                <svg id="mysvg"></svg>
+                
+            </div>
+        </div>
+    
+        <script>
+            var controls = document.querySelectorAll('.controls button');
+            var svg = document.getElementById('mysvg'); 
+            var fill =document.getElementById('fill');
+            var stroke = document.getElementById('stroke');
+
+            var element;
+            var fillStyle = 'black';
+            var strokeSyle = 'black';
+            var strokeWidth =3;
+            var flage =2;
+            var show=false;
+
+
+            function changeFill(){
+                fill.click();
+                
+            }
+
+            function ChangeStroke(){
+                stroke.click();
+                
+            }
+
+            fill.onchange = function(){
+                fillStyle = fill.value;
+            }
+
+            stroke.onchange = function(){
+                strokeSyle = stroke.value;
+            }
+
+            function removeActiveClass(){
+                for (let index = 0; index < controls.length; index++) {
+                    controls[index].classList.remove('active');
+                    
+                }
+            }
+
+            function removeEraserClass(){
+                var children = svg.children;
+                for (let index = 0; index < children.length; index++) {
+                    children[index].classList.remove('point');
+                    
+                }
+            }
+            
+            function erase(ele){
+                flage=0;
+                removeActiveClass();
+                ele.classList.add('active');
+            
+                var children = svg.children;
+                for (let index = 0; index < children.length; index++) {
+                    children[index].classList.add('point');
+                    
+                }
+
+            }
+
+            svg.onclick = function(evt){
+                if(flage==0){
+                if(!(evt.target==svg)){
+                    if(evt.target.parentNode != svg)
+                    {
+                        evt.target.parentNode.remove();
+                    }else{
+                    evt.target.remove();
+                    console.log(evt.target);
+                    }
+                }
+            }else if(flage==6){
+                evt.target.classList.remove('deleted');
+                console.log('re')
+                i--;
+            }
+                       
+            
+            }
+
+
+            var i=0;
+
+            function edit(ele){
+                flage = 6;
+                removeActiveClass();
+                ele.classList.add('active');
+                var children = svg.children;
+                for (let index = 0; index < children.length; index++) {
+                    children[index].classList.add('deleted');
+                    i++;
+                    
+                }
+            }
+
+            function clearAll(ele){
+                
+                var children = svg.childNodes;
+                for (var index = 0; index < children.length; index++) {
+                    if(children[index].classList.contains('deleted')){
+                        children[index].remove();
+                        
+                        i--;
+                    }
+                }
+                
+                while(i!=0){
+                    clearAll();
+                }
+            }
+
+
+            function move(ele)
+            {
+                flage=7;
+                removeActiveClass();
+                ele.classList.add('active');
+                
+                
+            }
+
+
+
+            function draw(n,ele)
+            {
+                removeActiveClass();
+                removeEraserClass();
+                flage=n;
+                ele.classList.add('active');
+
+            }
+
+            function drawLine(x1,y1)
+            {
+                element = document.createElementNS("http://www.w3.org/2000/svg",'line');
+                element.setAttribute('x1',x1);
+                element.setAttribute('y1',y1);
+                console.log(x1,y1);
+            }
+
+            function endLine(x2,y2)
+            {
+                element.setAttribute('x2',x2);
+                element.setAttribute('y2',y2);
+                element.style.cssText = `stroke:${strokeSyle};stroke-width:${strokeWidth}`;
+                
+                svg.append(element);
+                
+            
+            }
+
+            var cX;
+            var cY;
+
+            function drawCircle(cx,cy,r)
+            {
+                element = document.createElementNS("http://www.w3.org/2000/svg",'circle');
+                element.setAttribute('cx',cx);
+                element.setAttribute('cy',cy);
+                   cX = cx;
+                   cY = cy;
+            }
+
+            function endCircle(r)
+            {
+                element.setAttribute('r',r);
+                element.style.cssText = `stroke:${strokeSyle};stroke-width:${strokeWidth};fill:${fillStyle}`;
+                svg.append(element);
+            }
+
+            var rX;
+            var rY;
+
+            function drawRect(x,y)
+            {
+                element = document.createElementNS("http://www.w3.org/2000/svg",'rect');
+                element.setAttribute('x',x);
+                element.setAttribute('y',y);
+                   rX = x;
+                   rY = y;   
+            }
+
+            function endRect(w,h)
+            {
+                element.setAttribute('width',w);
+                element.setAttribute('height',h);
+                element.style.cssText = `stroke:${strokeSyle};stroke-width:${strokeWidth};fill:${fillStyle}`;
+                svg.append(element);
+            }
+
+
+            function drawFree(cx,cy){
+                element = document.createElementNS("http://www.w3.org/2000/svg",'circle');
+                element.setAttribute('cx',cx);
+                element.setAttribute('cy',cy);
+                element.setAttribute('r',5);
+                element.style.cssText = `fill:${fillStyle}`;
+                g.append(element);
+                svg.append(g);   
+            }
+
+            var g;
+
+            svg.onmousedown = function(evt)
+            {
+                if(flage==2)
+                {
+                    drawLine(evt.offsetX,evt.offsetY);
+                    show=true;
+                }else if(flage==4)
+                {
+                    drawCircle(evt.offsetX,evt.offsetY);
+                    show=true;
+                    
+                }else if(flage==3)
+                {
+                    drawRect(evt.offsetX,evt.offsetY);
+                    show =true;
+                    
+                }else if(flage==1){
+                    show=true;
+
+                    g = document.createElementNS("http://www.w3.org/2000/svg",'g');
+
+                }else if(flage==7){
+                    if(!(evt.target==svg)){
+                    evt.target.classList.add('move');
+                    element = evt.target;
+                    show =true;
+                }
+                }
+            }
+
+            svg.onmousemove = function(evt)
+            {
+                if(show)
+                {
+                    if(flage==2)
+                    {
+                        endLine(evt.offsetX,evt.offsetY);
+                    }else if(flage==4)
+                    {
+                        
+                        var r =Math.sqrt(Math.pow((evt.offsetX-cX),2)+Math.pow((evt.offsetY-cY),2));
+                        endCircle(r);
+
+                    }else if(flage==3)
+                    {
+                        w = evt.offsetX - rX;
+                        h = evt.offsetY - rY;
+                        endRect(w,h);
+                    }else if(flage==1)
+                    {
+                        drawFree(evt.offsetX,evt.offsetY);
+                    }else if(flage==7){
+                        
+                        if(element.tagName=='rect'){
+                        element.setAttribute('x',evt.offsetX);
+                        element.setAttribute('y',evt.offsetY);
+                        svg.append(element);
+                    }else if(element.tagName =='circle')
+                    {
+                        element.setAttribute('cx',evt.offsetX);
+                        element.setAttribute('cy',evt.offsetY);
+                        svg.append(element);
+                    }
+                        
+                        
+                    }
+
+
+                }
+            }
+
+            svg.onmouseup = function(evt)
+            {
+                if(flage==2)
+                {
+                    endLine(evt.offsetX,evt.offsetY);
+                    show=false;
+                }else if(flage==4)
+                {
+                    
+                   var r =Math.sqrt(Math.pow((evt.offsetX-cX),2)+Math.pow((evt.offsetY-cY),2));
+                   console.log(r);
+                    endCircle(r);
+                    show=false;
+                }else if(flage==3)
+                {
+                    w = evt.offsetX - rX;
+                    h = evt.offsetY - rY;
+                    endRect(w,h);
+                    show=false;
+                }else if(flage==1)
+                {
+                    show =false;
+                }else if(flage==7){
+                   
+                    element.classList.remove('move');
+                    show=false;
+                    
+                }
+            }
+
+
+
+        </script>
+
+    </body>
+</html>
